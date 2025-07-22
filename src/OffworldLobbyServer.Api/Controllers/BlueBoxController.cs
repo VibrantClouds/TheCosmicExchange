@@ -27,8 +27,9 @@ public class BlueBoxController(
 	private readonly ILogger<BlueBoxController> _logger = logger;
 
 	/// <summary>
-	/// Main BlueBox servlet endpoint
+	/// Main BlueBox servlet endpoint - HTTP transport for SFS2X protocol (port 8080).
 	/// Handles all BlueBox protocol commands: connect|poll|data|disconnect.
+	/// This is the fallback method when direct SFS2X connection on port 9933 fails.
 	/// </summary>
 	/// <returns>Plain text response.</returns>
 	[HttpPost("BlueBox.do")]
@@ -36,6 +37,12 @@ public class BlueBoxController(
 	[Produces("text/plain")]
 	public async Task<IActionResult> BlueBox()
 	{
+		// Verify this is being called on the BlueBox HTTP port
+		var protocol = HttpContext.Items["Protocol"]?.ToString();
+		if (protocol != "BlueBoxHttp")
+		{
+			_logger.LogWarning("BlueBox endpoint accessed via non-BlueBox protocol: {Protocol}", protocol);
+		}
 		try
 		{
 			// Read the raw form data

@@ -4,7 +4,7 @@
 - The goal is to reverse engineer a game server, ensure that documentation is detailed enough where reverse engineering a server is possible
 
 ## Documentation Tasks
-- Please write findings to a markdown document called NETWORKING.md with different sections for their domains such as Network Requests, Message Formats, etc
+- Please write findings to a markdown document called ./docs/ReverseEngineeringNotes.md with different sections for their domains such as Network Requests, Message Formats, etc
 
 ## Documentation Best Practices
 - After every step added to the documentation, evaluate and ensure the documentation is fully reconsiled instead of just always adding a new section

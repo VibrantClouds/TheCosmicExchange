@@ -1,8 +1,19 @@
 # Offworld Lobby Server (Alpha)
 
-**Status: Work in Progress - Alpha Development**
+**Status: ✅ Dual-Protocol Infrastructure Complete - Room Operations In Progress**
 
 A reverse-engineered game server implementation that replaces the original SmartFoxServer 2X (SFS2X) infrastructure used by Offworld Trading Company for multiplayer lobby management and P2P game coordination.
+
+## 🎉 **Major Milestone: Dual-Port Architecture Complete**
+
+The server now implements the complete dual-protocol architecture observed in the original game:
+- ✅ **Port 9933**: Direct SFS2X binary protocol (primary connection)
+- ✅ **Port 8080**: BlueBox HTTP transport (automatic failover)  
+- ✅ **Protocol Detection**: Seamless handling of both connection methods
+- ✅ **Authentication**: Full LoginRequest/LoginResponse implementation with P2P data
+- 🔄 **Room Management**: Basic room creation implemented, joining operations in progress
+
+Note a CLAUDE.md file in the directory root, while not required, I've personally used it as a tool to deal with boilerplate. Follow good practices. Do not blindly accept what LLM Code Assists recommend. Always be a pilot and guide it, always validate results which come from it. If you do not understand the output, do not accept it.
 
 ## 📋 Detailed Specifications
 
@@ -11,71 +22,78 @@ For complete technical details, protocol analysis, and implementation requiremen
 
 ## 🎯 What This Server Does
 
-This server replaces the original game's lobby infrastructure by implementing the proprietary BlueBox HTTP protocol used by Offworld Trading Company. The original game connects to `3.90.142.156:9933` - this server provides a drop-in replacement that enables:
+This server replaces the original game's lobby infrastructure by implementing **both** transport protocols used by Offworld Trading Company. The original game connects to `3.90.142.156:9933` (direct SFS2X) with automatic HTTP fallback to port 8080 - this server provides a complete dual-protocol replacement that enables:
 
+- **Dual-Protocol Support** - Both direct SFS2X binary (port 9933) and BlueBox HTTP (port 8080)
 - **Lobby Creation & Management** - Players can create and join multiplayer lobbies
 - **Game Configuration** - Complete lobby settings including maps, rules, and player assignments  
 - **P2P Coordination** - Facilitates Unity NetworkView P2P connections for actual gameplay
-- **Session Management** - Handles player authentication and connection state
-- **Protocol Compatibility** - Full BlueBox servlet compatibility with the original SFS2X implementation
+- **Session Management** - Unified player tracking across both transport methods
+- **Protocol Compatibility** - Full SFS2X binary and BlueBox HTTP compatibility
 
-## 🏗️ Architecture Overview
+## 🏗️ **Dual-Protocol Architecture**
 
-### Network Protocol Stack
+### Network Protocol Stack (✅ **IMPLEMENTED**)
 ```
 Game Client                    Original Infrastructure              This Server
 ─────────────────              ──────────────────────              ─────────────────
-CreateLobbyScreenListener  ->  
-LobbyHelpers               ->  
-AmazonManager              ->  SFS2X Server (3.90.142.156:9933) -> BlueBoxController
-│                              │                                   │
-├─ SmartFox client         ->  ├─ BlueBox Servlet               -> ├─ POST /BlueBox/BlueBox.do
-├─ CreateRoomRequest       ->  ├─ Room creation                -> ├─ Session management  
-├─ LoginRequest            ->  ├─ User authentication          -> ├─ Room management
-├─ JoinRoomRequest         ->  ├─ Room joining                 -> ├─ SFS2X protocol compatibility
-└─ ExtensionRequest        ->  └─ Custom extensions            -> └─ Message serialization
+AmazonManager.Connect()
+│
+├─ PRIMARY: Direct SFS2X    -> SFS2X Server (9933)             -> SFS2XTcpService (9933)
+│  ├─ Native TCP binary     -> Native binary protocol         -> SFS2XBinaryMessageProcessor  
+│  ├─ LoginRequest          -> Direct SFS2X handling          -> Binary LoginRequest/Response
+│  └─ CreateRoomRequest     -> Room creation                  -> Binary room management
+│
+└─ FALLBACK: BlueBox HTTP   -> HTTP Transport (8080)          -> BlueBoxController (8080)
+   ├─ HTTP POST             -> /BlueBox/BlueBox.do             -> HTTP POST endpoint
+   ├─ Base64 + Pipes        -> Tunneled SFS2X messages        -> SFS2XMessageProcessor
+   └─ Polling mechanism     -> Message queue polling          -> Session-based queuing
 
-Unity P2P (Post-Lobby)     ->  Unity NAT Facilitation         -> Unity P2P (unchanged)
+P2P Transition              -> Unity NAT Facilitation         -> Lobby-to-game handoff (IP/port data)
 ```
 
-### Core Components
-- **BlueBox Protocol Handler** - HTTP endpoint that processes pipe-separated commands (`connect|poll|data|disconnect`)
-- **Session Manager** - Tracks client connections and message queues
-- **Room Manager** - Manages lobby creation, joining, and settings
-- **SFS2X Message Processor** - Handles the 21-element lobby settings array and game configuration
-- **P2P Coordinator** - Facilitates transition from lobby to Unity NetworkView gameplay
+### ✅ **Implemented Core Components**
+- **🔧 SFS2XTcpService** - Direct TCP listener for native SFS2X binary protocol (port 9933)  
+- **🔧 BlueBoxController** - HTTP endpoint processing pipe-separated commands (port 8080)
+- **🔧 Session Manager** - Unified client tracking across both transport methods
+- **🔧 Room Manager** - Lobby creation, joining, and 21-element settings management  
+- **🔧 Binary Protocol Handler** - Native SFS2X message parsing with proper headers
+- **🔧 P2P Data Provider** - Critical IP/port information for lobby-to-game transitions
 
-## 🚧 Implementation Plan
+## 🚧 Implementation Status
 
-### Phase 1: Core Protocol (In Progress)
-- [x] BlueBox HTTP servlet endpoint (`/BlueBox/BlueBox.do`)
-- [x] Session management (connect/disconnect/polling)
-- [x] Basic message queuing system
-- [x] Clean Architecture project structure
-- [ ] Complete SFS2X message serialization
-- [ ] Login response with IP/port detection
-- [ ] 21-element lobby settings array parsing
+### ✅ **Phase 1-2: Dual-Protocol Infrastructure (COMPLETE)**
+- [x] **Direct SFS2X Protocol (Port 9933)** - Native TCP binary protocol with proper message framing
+- [x] **BlueBox HTTP Protocol (Port 8080)** - HTTP fallback with pipe-separated commands  
+- [x] **Session Management** - Unified tracking across both transport methods
+- [x] **Protocol Detection** - Automatic handling of primary/fallback connection methods
+- [x] **Clean Architecture** - Proper separation of concerns and dependency injection
 
-### Phase 2: Lobby Management (Planned)
-- [ ] Room creation and joining
-- [ ] Lobby settings synchronization
-- [ ] Player state management
-- [ ] Room variable updates
-- [ ] Game start coordination
+### ✅ **Phase 3: SFS2X Protocol Implementation (MOSTLY COMPLETE)**
+- [x] **Authentication Protocol** - LoginRequest/LoginResponse with zone validation
+- [x] **Player Data Extraction** - playerName, gender, tachyonID from game parameters
+- [x] **Binary Serialization** - Proper SFS2X header format and response generation
+- [x] **P2P Network Data** - Critical IP/port information for lobby-to-game transitions
+- [x] **Error Handling** - SFS2X-compliant error responses with request correlation
+- [🔄] **Room Creation** - Basic CreateRoomRequest implemented, needs 21-element array refinement
 
-### Phase 3: P2P Integration (Planned)
-- [ ] Unity GUID broadcasting
-- [ ] P2P connection facilitation
-- [ ] Lobby-to-game transition
-- [ ] NAT traversal support
-- [ ] Connection fallback mechanisms
+### 🔄 **Phase 3: Room Operations (IN PROGRESS)**  
+- [🔄] **Complete CreateRoomRequest** - Match exact 21-element lobbySettings SFSArray format
+- [ ] **JoinRoomRequest** - Room joining with password support and user validation
+- [ ] **ExtensionRequest** - Handle "registerData" and other custom game extensions
+- [ ] **Room Variables** - Dynamic lobby setting updates and synchronization
 
-### Phase 4: Production Readiness (Future)
-- [ ] Load testing and optimization
-- [ ] Monitoring and diagnostics
-- [ ] Error handling and recovery
-- [ ] Security hardening
-- [ ] Docker deployment
+### 📋 **Phase 4: Production Features (PLANNED)**
+- [ ] **Transport Abstraction** - Unified business logic across both protocols
+- [ ] **Integration Testing** - Automated testing for dual-protocol scenarios  
+- [ ] **Monitoring & Metrics** - Protocol usage tracking and performance monitoring
+- [ ] **Configuration Flexibility** - Dynamic port binding and protocol toggles
+
+### 🚀 **Phase 5: Game Integration (FUTURE)**
+- [ ] **Unity P2P Facilitation** - Complete lobby-to-game transition support
+- [ ] **Load Testing** - Multi-client stress testing and optimization
+- [ ] **Security Hardening** - Input validation and DoS protection
+- [ ] **Docker Deployment** - Containerized production deployment
 
 ## 🚀 Quick Start
 
@@ -135,6 +153,23 @@ DECOMPILED_GAME_CLASSES/              # Original game code analysis
 ```
 
 ## 🔧 Protocol Implementation Details
+
+### Port Configuration & Failover Behavior
+The SmartFoxServer client uses a dual-port architecture with automatic failover:
+
+**Primary Connection (Port 9933)**
+- Direct SFS2X protocol communication
+- Attempted first by the game client
+- Native SmartFoxServer binary protocol
+
+**Fallback Connection (Port 8080)** 
+- BlueBox HTTP transport layer
+- Activated when port 9933 is unreachable or redirected
+- HTTP-tunneled SFS2X protocol messages
+
+**Observed Wireshark Behavior**: When using IPTables to redirect port 9933 traffic to your replacement server, the game client automatically switches to BlueBox HTTP mode on port 8080. This is expected SmartFoxServer failover functionality.
+
+**Implementation Note**: Your replacement server should handle both connection methods - direct SFS2X on 9933 and BlueBox HTTP on 8080 - to ensure compatibility with all client configurations.
 
 ### BlueBox Command Format
 The game uses HTTP POST with pipe-separated commands:
