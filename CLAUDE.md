@@ -13,3 +13,6 @@
 - Keep an active list of things which are still missing in the project
 - If a method is needed to fully understand one function, maintain a note of that method
 - When a method is filled in, remove it from the tracking section
+
+## Code Change Guidelines
+- Reference the styleguide when making code changes
