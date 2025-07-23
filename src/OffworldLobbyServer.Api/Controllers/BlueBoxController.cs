@@ -191,7 +191,7 @@ public class BlueBoxController(
 	/// <summary>
 	/// Handles data command - client sending data to server
 	/// Request: SESS_123|data|{base64_encoded_data}
-	/// Response: data|null (acknowledgment).
+	/// Response: data|{base64_encoded_response} or data|null.
 	/// </summary>
 	private async Task<string> HandleData(string sessionId, string data)
 	{
@@ -219,12 +219,15 @@ public class BlueBoxController(
 
 			if (response != null)
 			{
-				// Queue the response for polling
-				await _sessionManager.QueueMessageAsync(sessionId, response);
-				_logger.LogDebug("Response queued for session {SessionId}", sessionId);
+				// Return response immediately for synchronous SFS2X messages
+				_logger.LogDebug("Returning immediate SFS2X response for session {SessionId}", sessionId);
+				return $"data|{response}";
 			}
-
-			return "data|null"; // Always acknowledge with null
+			else
+			{
+				// No response needed - acknowledge with null
+				return "data|null";
+			}
 		}
 		catch (Exception ex)
 		{

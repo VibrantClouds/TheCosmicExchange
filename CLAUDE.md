@@ -16,3 +16,22 @@
 
 ## Code Change Guidelines
 - Reference the styleguide when making code changes
+
+## Experimental Practices
+- When working and experimenting, in documentation have a dedicated section for the 'current experiments' - Only if a breakthrough is made should you move it from that section and put it into the official findings segments of the readme
+- Do not complete an experiment until the hypothesis has tested results.
+
+### Experiment Completion Criteria
+- An experiment is NOT complete until it has been tested and produces working results
+- Code implementation alone does not confirm an experiment - it must be tested
+- Failed attempts should be documented as failed, not removed from history
+- Only move findings from "Current Experiments" to confirmed sections after:
+  1. Implementation is complete
+  2. Testing confirms the hypothesis works
+  3. The original problem is actually solved
+  
+### Documentation Standards for Experiments
+- Mark experiment status clearly: 🔬 TESTING, ✅ CONFIRMED, ❌ FAILED
+- Keep failed attempts visible for learning
+- Document what was tried, what failed, and why
+- Never claim success until the end-to-end functionality works

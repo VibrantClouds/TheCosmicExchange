@@ -73,6 +73,16 @@ public class SFSObject
 	}
 
 	/// <summary>
+	/// Sets a long value.
+	/// </summary>
+	/// <param name="key">Key identifier.</param>
+	/// <param name="value">Long value.</param>
+	public void PutLong(string key, long value)
+	{
+		_data[key] = value;
+	}
+
+	/// <summary>
 	/// Sets a boolean value.
 	/// </summary>
 	/// <param name="key">Key identifier.</param>
@@ -173,6 +183,27 @@ public class SFSObject
 		}
 
 		throw new InvalidCastException($"Value for key '{key}' is not an int");
+	}
+
+	/// <summary>
+	/// Gets a long value.
+	/// </summary>
+	/// <param name="key">Key identifier.</param>
+	/// <returns>Long value or 0 if not found.</returns>
+	/// <exception cref="InvalidCastException">Value is not a long.</exception>
+	public long GetLong(string key)
+	{
+		if (!_data.TryGetValue(key, out var value))
+		{
+			return 0;
+		}
+
+		if (value is long longValue)
+		{
+			return longValue;
+		}
+
+		throw new InvalidCastException($"Value for key '{key}' is not a long");
 	}
 
 	/// <summary>
@@ -319,6 +350,10 @@ public class SFSObject
 				writer.Write((byte)4);
 				writer.Write(i);
 				break;
+			case long l:
+				writer.Write((byte)8);
+				writer.Write(l);
+				break;
 			case bool bl:
 				writer.Write((byte)5);
 				writer.Write(bl);
@@ -360,6 +395,7 @@ public class SFSObject
 			5 => reader.ReadBoolean(),
 			6 => DeserializeBoolArray(reader),
 			7 => Deserialize(reader),
+			8 => reader.ReadInt64(),
 			_ => throw new NotSupportedException($"Unsupported value type indicator: {type}")
 		};
 	}
