@@ -288,132 +288,93 @@ public class SFSObject
 	}
 
 	/// <summary>
-	/// Serializes the SFSObject to binary format.
+	/// Gets a data wrapper for the specified key.
+	/// Required by SFS2XSerializer for proper type handling.
 	/// </summary>
-	/// <param name="writer">Binary writer.</param>
-	public void Serialize(BinaryWriter writer)
+	/// <param name="key">Key identifier.</param>
+	/// <returns>SFS2XDataWrapper for the value.</returns>
+	internal SFS2XDataWrapper GetData(string key)
 	{
-		writer.Write(_data.Count);
-
-		foreach (var kvp in _data)
+		if (!_data.TryGetValue(key, out var value))
 		{
-			writer.Write(kvp.Key);
-			SerializeValue(writer, kvp.Value);
-		}
-	}
-
-	/// <summary>
-	/// Deserializes an SFSObject from binary format.
-	/// </summary>
-	/// <param name="reader">Binary reader.</param>
-	/// <returns>Deserialized SFSObject.</returns>
-	public static SFSObject Deserialize(BinaryReader reader)
-	{
-		var obj = new SFSObject();
-		var count = reader.ReadInt32();
-
-		for (int i = 0; i < count; i++)
-		{
-			var key = reader.ReadString();
-			var value = DeserializeValue(reader);
-			obj._data[key] = value;
+			return new SFS2XDataWrapper(SFS2XDataType.NULL, null);
 		}
 
-		return obj;
-	}
-
-	/// <summary>
-	/// Serializes a single value.
-	/// </summary>
-	/// <param name="writer">Binary writer.</param>
-	/// <param name="value">Value to serialize.</param>
-	private static void SerializeValue(BinaryWriter writer, object? value)
-	{
-		switch (value)
+		return value switch
 		{
-			case null:
-				writer.Write((byte)0); // Null indicator
-				break;
-			case string str:
-				writer.Write((byte)1);
-				writer.Write(str);
-				break;
-			case byte b:
-				writer.Write((byte)2);
-				writer.Write(b);
-				break;
-			case short s:
-				writer.Write((byte)3);
-				writer.Write(s);
-				break;
-			case int i:
-				writer.Write((byte)4);
-				writer.Write(i);
-				break;
-			case long l:
-				writer.Write((byte)8);
-				writer.Write(l);
-				break;
-			case bool bl:
-				writer.Write((byte)5);
-				writer.Write(bl);
-				break;
-			case bool[] bArr:
-				writer.Write((byte)6);
-				writer.Write(bArr.Length);
-				foreach (var b in bArr)
-				{
-					writer.Write(b);
-				}
-
-				break;
-			case SFSObject obj:
-				writer.Write((byte)7);
-				obj.Serialize(writer);
-				break;
-			default:
-				throw new NotSupportedException($"Unsupported value type: {value.GetType()}");
-		}
-	}
-
-	/// <summary>
-	/// Deserializes a single value.
-	/// </summary>
-	/// <param name="reader">Binary reader.</param>
-	/// <returns>Deserialized value.</returns>
-	private static object? DeserializeValue(BinaryReader reader)
-	{
-		var type = reader.ReadByte();
-
-		return type switch
-		{
-			0 => null,
-			1 => reader.ReadString(),
-			2 => reader.ReadByte(),
-			3 => reader.ReadInt16(),
-			4 => reader.ReadInt32(),
-			5 => reader.ReadBoolean(),
-			6 => DeserializeBoolArray(reader),
-			7 => Deserialize(reader),
-			8 => reader.ReadInt64(),
-			_ => throw new NotSupportedException($"Unsupported value type indicator: {type}")
+			null => new SFS2XDataWrapper(SFS2XDataType.NULL, null),
+			bool boolValue => new SFS2XDataWrapper(SFS2XDataType.BOOL, boolValue),
+			byte byteValue => new SFS2XDataWrapper(SFS2XDataType.BYTE, byteValue),
+			short shortValue => new SFS2XDataWrapper(SFS2XDataType.SHORT, shortValue),
+			int intValue => new SFS2XDataWrapper(SFS2XDataType.INT, intValue),
+			long longValue => new SFS2XDataWrapper(SFS2XDataType.LONG, longValue),
+			float floatValue => new SFS2XDataWrapper(SFS2XDataType.FLOAT, floatValue),
+			double doubleValue => new SFS2XDataWrapper(SFS2XDataType.DOUBLE, doubleValue),
+			string stringValue => new SFS2XDataWrapper(SFS2XDataType.UTF_STRING, stringValue),
+			bool[] boolArray => new SFS2XDataWrapper(SFS2XDataType.BOOL_ARRAY, boolArray),
+			byte[] byteArray => new SFS2XDataWrapper(SFS2XDataType.BYTE_ARRAY, byteArray),
+			string[] stringArray => new SFS2XDataWrapper(SFS2XDataType.UTF_STRING_ARRAY, stringArray),
+			SFSObject sfsObject => new SFS2XDataWrapper(SFS2XDataType.SFS_OBJECT, sfsObject),
+			SFSArray sfsArray => new SFS2XDataWrapper(SFS2XDataType.SFS_ARRAY, sfsArray),
+			_ => throw new NotSupportedException($"Unsupported value type: {value.GetType()}")
 		};
 	}
 
 	/// <summary>
-	/// Deserializes a boolean array.
+	/// Puts a data wrapper value into the object.
+	/// Required by SFS2XSerializer for proper type handling.
+	/// </summary>
+	/// <param name="key">Key identifier.</param>
+	/// <param name="wrapper">Data wrapper to store.</param>
+	internal void Put(string key, SFS2XDataWrapper wrapper)
+	{
+		_data[key] = wrapper.Data;
+	}
+
+	/// <summary>
+	/// Serializes the SFSObject to SFS2X binary format.
+	/// Uses the official SFS2X serialization protocol.
+	/// </summary>
+	/// <returns>Binary representation.</returns>
+	public byte[] Serialize()
+	{
+		return SFS2XSerializer.SerializeObject(this);
+	}
+
+	/// <summary>
+	/// Deserializes an SFSObject from SFS2X binary format.
+	/// Uses the official SFS2X deserialization protocol.
+	/// </summary>
+	/// <param name="data">Binary data.</param>
+	/// <returns>Deserialized SFSObject.</returns>
+	public static SFSObject Deserialize(byte[] data)
+	{
+		return SFS2XSerializer.DeserializeObject(data);
+	}
+
+	/// <summary>
+	/// Legacy serialization method for backward compatibility.
+	/// </summary>
+	/// <param name="writer">Binary writer.</param>
+	[Obsolete("Use Serialize() method instead for SFS2X compatibility")]
+	public void Serialize(BinaryWriter writer)
+	{
+		var data = Serialize();
+		writer.Write(data);
+	}
+
+	/// <summary>
+	/// Legacy deserialization method for backward compatibility.
 	/// </summary>
 	/// <param name="reader">Binary reader.</param>
-	/// <returns>Boolean array.</returns>
-	private static bool[] DeserializeBoolArray(BinaryReader reader)
+	/// <returns>Deserialized SFSObject.</returns>
+	[Obsolete("Use Deserialize(byte[]) method instead for SFS2X compatibility")]
+	public static SFSObject Deserialize(BinaryReader reader)
 	{
-		var length = reader.ReadInt32();
-		var array = new bool[length];
-		for (int i = 0; i < length; i++)
-		{
-			array[i] = reader.ReadBoolean();
-		}
-
-		return array;
+		// Read the entire remaining stream as bytes and use SFS2X deserializer
+		var stream = reader.BaseStream;
+		var remaining = (int)(stream.Length - stream.Position);
+		var data = reader.ReadBytes(remaining);
+		return Deserialize(data);
 	}
 }

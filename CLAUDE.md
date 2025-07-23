@@ -35,3 +35,13 @@
 - Keep failed attempts visible for learning
 - Document what was tried, what failed, and why
 - Never claim success until the end-to-end functionality works
+
+## Scientific Method in Project Development
+- Treat working in this project like the scientific method
+- Create a Hypothesis
+- Have the user run tests
+- Once a test proves a hypothesis, move on to the next investigation
+
+## Experimental Workflow
+- Instead of running the project yourself to run tests, instead ask the user to run it and provide the server logs
+- The method to trigger a request is complex, a LLM cannot do it
