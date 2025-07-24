@@ -1,6 +1,12 @@
 using OffworldLobbyServer.Api.Controllers;
 using OffworldLobbyServer.Api.Middleware;
 using OffworldLobbyServer.Infrastructure.Extensions;
+using OffworldLobbyServer.Shared;
+
+// SFS2X exploration completed - discovered Handshake=0, Login=1
+// Console.WriteLine("=== EXPLORING SFS2X PROTOCOL CONSTANTS ===");
+// SFS2XProtocolExplorer.ExploreMessageTypes();
+// Console.WriteLine("=== END SFS2X EXPLORATION ===\n");
 
 var builder = WebApplication.CreateBuilder(args);
 

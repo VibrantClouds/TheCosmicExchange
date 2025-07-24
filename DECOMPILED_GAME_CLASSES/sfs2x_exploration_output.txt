@@ -1,0 +1,304 @@
+/home/conrad/Development/OffworldReverseEng/SFS2XExplorer/SFS2XExplorer.csproj : warning NU1701: Package 'Sfs2X 1.7.16' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net9.0'. This package may not be fully compatible with your project.
+/home/conrad/Development/OffworldReverseEng/SFS2XExplorer/SFS2XExplorer.csproj : warning NU1701: Package 'Sfs2X 1.7.16' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net9.0'. This package may not be fully compatible with your project.
+=== SFS2X Protocol Exploration ===
+
+=== Looking for Response Types ===
+
+=== Looking for Message Type Constants ===
+Found type/enum: Sfs2X.Util.BuddyOnlineState
+  Enum values:
+    ONLINE = 0
+    OFFLINE = 1
+    LEFT_THE_SERVER = 2
+    ONLINE = 0 (const Int32)
+    OFFLINE = 1 (const Int32)
+    LEFT_THE_SERVER = 2 (const Int32)
+Found type/enum: Sfs2X.Util.UseWebSocket
+  Enum values:
+    WS = 0
+    WSS = 1
+    WS_BIN = 2
+    WSS_BIN = 3
+    WS = 0 (const Int32)
+    WSS = 1 (const Int32)
+    WS_BIN = 2 (const Int32)
+    WSS_BIN = 3 (const Int32)
+Found type/enum: Sfs2X.Requests.AdminMessageRequest
+Found type/enum: Sfs2X.Requests.BanMode
+  Enum values:
+    BY_ADDRESS = 0
+    BY_NAME = 1
+    BY_ADDRESS = 0 (const Int32)
+    BY_NAME = 1 (const Int32)
+Found type/enum: Sfs2X.Requests.GenericMessageRequest
+    KEY_ROOM_ID = r (static String)
+    KEY_USER_ID = u (static String)
+    KEY_MESSAGE = m (static String)
+    KEY_MESSAGE_TYPE = t (static String)
+    KEY_RECIPIENT = rc (static String)
+    KEY_RECIPIENT_MODE = rm (static String)
+    KEY_XTRA_PARAMS = p (static String)
+    KEY_SENDER_DATA = sd (static String)
+Found type/enum: Sfs2X.Requests.GenericMessageType
+  Enum values:
+    PUBLIC_MSG = 0
+    PRIVATE_MSG = 1
+    MODERATOR_MSG = 2
+    ADMIN_MSG = 3
+    OBJECT_MSG = 4
+    BUDDY_MSG = 5
+    PUBLIC_MSG = 0 (const Int32)
+    PRIVATE_MSG = 1 (const Int32)
+    MODERATOR_MSG = 2 (const Int32)
+    ADMIN_MSG = 3 (const Int32)
+    OBJECT_MSG = 4 (const Int32)
+    BUDDY_MSG = 5 (const Int32)
+Found type/enum: Sfs2X.Requests.MessageRecipientType
+  Enum values:
+    TO_USER = 0
+    TO_ROOM = 1
+    TO_GROUP = 2
+    TO_ZONE = 3
+    TO_USER = 0 (const Int32)
+    TO_ROOM = 1 (const Int32)
+    TO_GROUP = 2 (const Int32)
+    TO_ZONE = 3 (const Int32)
+Found type/enum: Sfs2X.Requests.MessageRecipientMode
+Found type/enum: Sfs2X.Requests.ModeratorMessageRequest
+Found type/enum: Sfs2X.Requests.ObjectMessageRequest
+Found type/enum: Sfs2X.Requests.PrivateMessageRequest
+Found type/enum: Sfs2X.Requests.PublicMessageRequest
+Found type/enum: Sfs2X.Requests.RequestType
+  Enum values:
+    Handshake = 0
+    Login = 1
+    Logout = 2
+    GetRoomList = 3
+    JoinRoom = 4
+    AutoJoin = 5
+    CreateRoom = 6
+    GenericMessage = 7
+    ChangeRoomName = 8
+    ChangeRoomPassword = 9
+    ObjectMessage = 10
+    SetRoomVariables = 11
+    SetUserVariables = 12
+    CallExtension = 13
+    LeaveRoom = 14
+    SubscribeRoomGroup = 15
+    UnsubscribeRoomGroup = 16
+    SpectatorToPlayer = 17
+    PlayerToSpectator = 18
+    ChangeRoomCapacity = 19
+    PublicMessage = 20
+    PrivateMessage = 21
+    ModeratorMessage = 22
+    AdminMessage = 23
+    KickUser = 24
+    BanUser = 25
+    ManualDisconnection = 26
+    FindRooms = 27
+    FindUsers = 28
+    PingPong = 29
+    SetUserPosition = 30
+    InitBuddyList = 200
+    AddBuddy = 201
+    BlockBuddy = 202
+    RemoveBuddy = 203
+    SetBuddyVariables = 204
+    GoOnline = 205
+    InviteUser = 300
+    InvitationReply = 301
+    CreateSFSGame = 302
+    QuickJoinGame = 303
+    JoinRoomInvite = 304
+    ClusterQuickJoin = 500
+    ClusterCreateGame = 501
+    ClusterInvitePlayers = 502
+    GameServerConnectionRequired = 600
+    Handshake = 0 (const Int32)
+    Login = 1 (const Int32)
+    Logout = 2 (const Int32)
+    GetRoomList = 3 (const Int32)
+    JoinRoom = 4 (const Int32)
+    AutoJoin = 5 (const Int32)
+    CreateRoom = 6 (const Int32)
+    GenericMessage = 7 (const Int32)
+    ChangeRoomName = 8 (const Int32)
+    ChangeRoomPassword = 9 (const Int32)
+    ObjectMessage = 10 (const Int32)
+    SetRoomVariables = 11 (const Int32)
+    SetUserVariables = 12 (const Int32)
+    CallExtension = 13 (const Int32)
+    LeaveRoom = 14 (const Int32)
+    SubscribeRoomGroup = 15 (const Int32)
+    UnsubscribeRoomGroup = 16 (const Int32)
+    SpectatorToPlayer = 17 (const Int32)
+    PlayerToSpectator = 18 (const Int32)
+    ChangeRoomCapacity = 19 (const Int32)
+    PublicMessage = 20 (const Int32)
+    PrivateMessage = 21 (const Int32)
+    ModeratorMessage = 22 (const Int32)
+    AdminMessage = 23 (const Int32)
+    KickUser = 24 (const Int32)
+    BanUser = 25 (const Int32)
+    ManualDisconnection = 26 (const Int32)
+    FindRooms = 27 (const Int32)
+    FindUsers = 28 (const Int32)
+    PingPong = 29 (const Int32)
+    SetUserPosition = 30 (const Int32)
+    InitBuddyList = 200 (const Int32)
+    AddBuddy = 201 (const Int32)
+    BlockBuddy = 202 (const Int32)
+    RemoveBuddy = 203 (const Int32)
+    SetBuddyVariables = 204 (const Int32)
+    GoOnline = 205 (const Int32)
+    InviteUser = 300 (const Int32)
+    InvitationReply = 301 (const Int32)
+    CreateSFSGame = 302 (const Int32)
+    QuickJoinGame = 303 (const Int32)
+    JoinRoomInvite = 304 (const Int32)
+    ClusterQuickJoin = 500 (const Int32)
+    ClusterCreateGame = 501 (const Int32)
+    ClusterInvitePlayers = 502 (const Int32)
+    GameServerConnectionRequired = 600 (const Int32)
+Found type/enum: Sfs2X.Requests.Buddylist.BuddyMessageRequest
+Found type/enum: Sfs2X.Protocol.Serialization.SerializableSFSType
+Found type/enum: Sfs2X.Logging.LogLevel
+  Enum values:
+    DEBUG = 100
+    INFO = 200
+    WARN = 300
+    ERROR = 400
+    DEBUG = 100 (const Int32)
+    INFO = 200 (const Int32)
+    WARN = 300 (const Int32)
+    ERROR = 400 (const Int32)
+Found type/enum: Sfs2X.Entities.UserPrivileges
+  Enum values:
+    GUEST = 0
+    STANDARD = 1
+    MODERATOR = 2
+    ADMINISTRATOR = 3
+    GUEST = 0 (const Int32)
+    STANDARD = 1 (const Int32)
+    MODERATOR = 2 (const Int32)
+    ADMINISTRATOR = 3 (const Int32)
+Found type/enum: Sfs2X.Entities.Variables.VariableType
+  Enum values:
+    NULL = 0
+    BOOL = 1
+    INT = 2
+    DOUBLE = 3
+    STRING = 4
+    OBJECT = 5
+    ARRAY = 6
+    NULL = 0 (const Int32)
+    BOOL = 1 (const Int32)
+    INT = 2 (const Int32)
+    DOUBLE = 3 (const Int32)
+    STRING = 4 (const Int32)
+    OBJECT = 5 (const Int32)
+    ARRAY = 6 (const Int32)
+Found type/enum: Sfs2X.Entities.Invitation.InvitationReply
+  Enum values:
+    ACCEPT = 0
+    REFUSE = 1
+    EXPIRED = 255
+    ACCEPT = 0 (const Int32)
+    REFUSE = 1 (const Int32)
+    EXPIRED = 255 (const Int32)
+Found type/enum: Sfs2X.Entities.Data.SFSDataType
+  Enum values:
+    NULL = 0
+    BOOL = 1
+    BYTE = 2
+    SHORT = 3
+    INT = 4
+    LONG = 5
+    FLOAT = 6
+    DOUBLE = 7
+    UTF_STRING = 8
+    BOOL_ARRAY = 9
+    BYTE_ARRAY = 10
+    SHORT_ARRAY = 11
+    INT_ARRAY = 12
+    LONG_ARRAY = 13
+    FLOAT_ARRAY = 14
+    DOUBLE_ARRAY = 15
+    UTF_STRING_ARRAY = 16
+    SFS_ARRAY = 17
+    SFS_OBJECT = 18
+    CLASS = 19
+    TEXT = 20
+    NULL = 0 (const Int32)
+    BOOL = 1 (const Int32)
+    BYTE = 2 (const Int32)
+    SHORT = 3 (const Int32)
+    INT = 4 (const Int32)
+    LONG = 5 (const Int32)
+    FLOAT = 6 (const Int32)
+    DOUBLE = 7 (const Int32)
+    UTF_STRING = 8 (const Int32)
+    BOOL_ARRAY = 9 (const Int32)
+    BYTE_ARRAY = 10 (const Int32)
+    SHORT_ARRAY = 11 (const Int32)
+    INT_ARRAY = 12 (const Int32)
+    LONG_ARRAY = 13 (const Int32)
+    FLOAT_ARRAY = 14 (const Int32)
+    DOUBLE_ARRAY = 15 (const Int32)
+    UTF_STRING_ARRAY = 16 (const Int32)
+    SFS_ARRAY = 17 (const Int32)
+    SFS_OBJECT = 18 (const Int32)
+    CLASS = 19 (const Int32)
+    TEXT = 20 (const Int32)
+Found type/enum: Sfs2X.Bitswarm.IMessage
+Found type/enum: Sfs2X.Bitswarm.Message
+Found type/enum: Sfs2X.Bitswarm.PacketReadState
+  Enum values:
+    WAIT_NEW_PACKET = 0
+    WAIT_DATA_SIZE = 1
+    WAIT_DATA_SIZE_FRAGMENT = 2
+    WAIT_DATA = 3
+    INVALID_DATA = 4
+    WAIT_NEW_PACKET = 0 (const Int32)
+    WAIT_DATA_SIZE = 1 (const Int32)
+    WAIT_DATA_SIZE_FRAGMENT = 2 (const Int32)
+    WAIT_DATA = 3 (const Int32)
+    INVALID_DATA = 4 (const Int32)
+Found type/enum: Sfs2X.Bitswarm.PacketReadTransition
+  Enum values:
+    HeaderReceived = 0
+    SizeReceived = 1
+    IncompleteSize = 2
+    WholeSizeReceived = 3
+    PacketFinished = 4
+    InvalidData = 5
+    InvalidDataFinished = 6
+    HeaderReceived = 0 (const Int32)
+    SizeReceived = 1 (const Int32)
+    IncompleteSize = 2 (const Int32)
+    WholeSizeReceived = 3 (const Int32)
+    PacketFinished = 4 (const Int32)
+    InvalidData = 5 (const Int32)
+    InvalidDataFinished = 6 (const Int32)
+Found type/enum: Sfs2X.Core.Sockets.BaseSocketLayer+States
+  Enum values:
+    Disconnected = 0
+    Connecting = 1
+    Connected = 2
+    Disconnected = 0 (const Int32)
+    Connecting = 1 (const Int32)
+    Connected = 2 (const Int32)
+Found type/enum: Sfs2X.Core.Sockets.BaseSocketLayer+Transitions
+  Enum values:
+    StartConnect = 0
+    ConnectionSuccess = 1
+    ConnectionFailure = 2
+    Disconnect = 3
+    StartConnect = 0 (const Int32)
+    ConnectionSuccess = 1 (const Int32)
+    ConnectionFailure = 2 (const Int32)
+    Disconnect = 3 (const Int32)
+
+=== Done ===
