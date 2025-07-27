@@ -71,9 +71,8 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<ISessionManager, InMemorySessionManager>();
 		services.AddSingleton<IRoomManager, InMemoryRoomManager>();
 
-		// SFS2X protocol services
-		services.AddTransient<SFS2XMessageProcessor>();
-		services.AddTransient<SFS2XBinaryMessageProcessor>();
+		// SFS2X protocol service - unified processor implementing confirmed specifications
+		services.AddTransient<ISFS2XProtocolProcessor, SFS2XProtocolProcessor>();
 		// TCP service disabled for BlueBox-only experiment
 		// services.AddSingleton<ISFS2XTcpService, SFS2XTcpService>();
 
@@ -99,7 +98,7 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IRoomManager, InMemoryRoomManager>();
 
 		// SFS2X protocol processor
-		services.AddTransient<SFS2XMessageProcessor>();
+		services.AddTransient<ISFS2XProtocolProcessor, SFS2XProtocolProcessor>();
 
 		return services;
 	}

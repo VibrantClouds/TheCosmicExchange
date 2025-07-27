@@ -1,7 +1,6 @@
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using OffworldLobbyServer.Core.Interfaces;
-using OffworldLobbyServer.Core.Services;
 
 namespace OffworldLobbyServer.Api.Controllers;
 
@@ -11,19 +10,17 @@ namespace OffworldLobbyServer.Api.Controllers;
 /// Endpoint: POST /BlueBox/BlueBox.do.
 /// </summary>
 /// <param name="sessionManager">Session management service.</param>
-/// <param name="roomManager">Room management service.</param>
-/// <param name="sfs2xProcessor">SFS2X message processor.</param>
+/// <param name="sfs2xProcessor">SFS2X protocol processor.</param>
 /// <param name="logger">Logger instance.</param>
 [ApiController]
 [Route("[controller]")]
 public class BlueBoxController(
 	ISessionManager sessionManager,
-	IRoomManager roomManager,
-	SFS2XMessageProcessor sfs2xProcessor,
+	ISFS2XProtocolProcessor sfs2xProcessor,
 	ILogger<BlueBoxController> logger): ControllerBase
 {
 	private readonly ISessionManager _sessionManager = sessionManager;
-	private readonly SFS2XMessageProcessor _sfs2xProcessor = sfs2xProcessor;
+	private readonly ISFS2XProtocolProcessor _sfs2xProcessor = sfs2xProcessor;
 	private readonly ILogger<BlueBoxController> _logger = logger;
 
 	/// <summary>
@@ -215,7 +212,7 @@ public class BlueBoxController(
 				"Processing SFS2X data from session {SessionId}: {DataLength} chars",
 				sessionId, data.Length);
 
-			var response = await _sfs2xProcessor.ProcessSFS2XMessage(sessionId, data);
+			var response = await _sfs2xProcessor.ProcessBlueBoxMessage(sessionId, data);
 
 			if (response != null)
 			{

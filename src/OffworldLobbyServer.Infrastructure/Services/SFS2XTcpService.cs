@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OffworldLobbyServer.Core.Interfaces;
 using OffworldLobbyServer.Core.Models;
-using OffworldLobbyServer.Core.Services;
 
 namespace OffworldLobbyServer.Infrastructure.Services;
 
@@ -18,8 +17,7 @@ public class SFS2XTcpService : ISFS2XTcpService, IDisposable
 	private readonly ILogger<SFS2XTcpService> _logger;
 	private readonly ISessionManager _sessionManager;
 	private readonly ServerConfiguration _config;
-	private readonly SFS2XMessageProcessor _messageProcessor;
-	private readonly SFS2XBinaryMessageProcessor _binaryMessageProcessor;
+	private readonly ISFS2XProtocolProcessor _protocolProcessor;
 
 	private TcpListener? _tcpListener;
 	private CancellationTokenSource? _cancellationTokenSource;
@@ -32,14 +30,12 @@ public class SFS2XTcpService : ISFS2XTcpService, IDisposable
 		ILogger<SFS2XTcpService> logger,
 		ISessionManager sessionManager,
 		IOptions<ServerConfiguration> config,
-		SFS2XMessageProcessor messageProcessor,
-		SFS2XBinaryMessageProcessor binaryMessageProcessor)
+		ISFS2XProtocolProcessor protocolProcessor)
 	{
 		_logger = logger;
 		_sessionManager = sessionManager;
 		_config = config.Value;
-		_messageProcessor = messageProcessor;
-		_binaryMessageProcessor = binaryMessageProcessor;
+		_protocolProcessor = protocolProcessor;
 	}
 
 	/// <summary>
@@ -179,7 +175,7 @@ public class SFS2XTcpService : ISFS2XTcpService, IDisposable
 
 		try
 		{
-			var connection = new SFS2XConnection(connectionId, tcpClient, _logger, _sessionManager, _messageProcessor, _binaryMessageProcessor);
+			var connection = new SFS2XConnection(connectionId, tcpClient, _logger, _sessionManager, _protocolProcessor);
 			_activeConnections[connectionId] = connection;
 
 			await connection.ProcessConnectionAsync(cancellationToken);
@@ -217,8 +213,7 @@ internal class SFS2XConnection
 	private readonly NetworkStream _stream;
 	private readonly ILogger _logger;
 	private readonly ISessionManager _sessionManager;
-	private readonly SFS2XMessageProcessor _messageProcessor;
-	private readonly SFS2XBinaryMessageProcessor _binaryMessageProcessor;
+	private readonly ISFS2XProtocolProcessor _protocolProcessor;
 	private string? _sessionId;
 
 	public SFS2XConnection(
@@ -226,16 +221,14 @@ internal class SFS2XConnection
 		TcpClient tcpClient,
 		ILogger logger,
 		ISessionManager sessionManager,
-		SFS2XMessageProcessor messageProcessor,
-		SFS2XBinaryMessageProcessor binaryMessageProcessor)
+		ISFS2XProtocolProcessor protocolProcessor)
 	{
 		_connectionId = connectionId;
 		_tcpClient = tcpClient;
 		_stream = tcpClient.GetStream();
 		_logger = logger;
 		_sessionManager = sessionManager;
-		_messageProcessor = messageProcessor;
-		_binaryMessageProcessor = binaryMessageProcessor;
+		_protocolProcessor = protocolProcessor;
 	}
 
 	/// <summary>
@@ -325,7 +318,7 @@ internal class SFS2XConnection
 		try
 		{
 			// Process with native binary SFS2X processor
-			var responseBytes = await _binaryMessageProcessor.ProcessBinaryMessage(_sessionId!, messageData);
+			var responseBytes = await _protocolProcessor.ProcessBinaryMessage(_sessionId!, messageData);
 			
 			if (responseBytes != null)
 			{

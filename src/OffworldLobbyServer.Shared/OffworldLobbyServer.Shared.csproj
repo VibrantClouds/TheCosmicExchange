@@ -6,8 +6,5 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Sfs2X" Version="1.7.16" />
-  </ItemGroup>
 
 </Project>
