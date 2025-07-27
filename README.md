@@ -208,6 +208,17 @@ Index 20: Handicap assignments (SFSObject: PlayerID → handicap)
 
 This is a reverse engineering project aimed at preserving multiplayer functionality for Offworld Trading Company. Contributions are welcome!
 
+### Community & Discussion
+
+💬 **Join our Matrix room for discussion and testing coordination:**  
+[https://matrix.to/#/#otc-server-creation:matrix.stormcloud.host](https://matrix.to/#/#otc-server-creation:matrix.stormcloud.host)
+
+This is the best place to:
+- Discuss protocol analysis and implementation details
+- Coordinate testing efforts with other contributors
+- Share findings and ask questions
+- Get help with setup and development
+
 ### Areas Needing Help
 - **Protocol Analysis** - Analyzing additional message formats and edge cases
 - **Testing** - Creating test cases for protocol compatibility
@@ -219,6 +230,7 @@ This is a reverse engineering project aimed at preserving multiplayer functional
 2. Set up the development environment
 3. Run the existing tests to understand the current functionality
 4. Pick an area to contribute to from the implementation plan above
+5. Join the Matrix room to coordinate with other contributors
 
 ## ⚠️ Important Notes
 
