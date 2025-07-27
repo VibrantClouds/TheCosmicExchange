@@ -45,3 +45,9 @@
 ## Experimental Workflow
 - Instead of running the project yourself to run tests, instead ask the user to run it and provide the server logs
 - The method to trigger a request is complex, a LLM cannot do it
+
+## Protocol Documentation
+- Authoritative SmartFoxServer 2X protocol specification is documented in `./docs/ReverseEngineeringNotes.md`
+- The "Confirmed Protocol Specifications" section contains definitive binary format details
+- Reference these specifications when implementing SFS2X message handling
+- Distinguish between confirmed protocol specs and experimental implementation attempts
