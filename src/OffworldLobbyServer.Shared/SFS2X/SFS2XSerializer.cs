@@ -331,16 +331,43 @@ public static class SFS2XSerializer
 
 	private static SFSObject DeserializeNestedObject(SFS2XBinaryReader reader)
 	{
-		// Need to rewind by one byte to read the type header
-		reader.Position--;
-		return DeserializeObject(reader);
+		// For nested objects, the type byte has already been consumed by DeserializeValue
+		// So we read the count and entries directly
+		var count = reader.ReadShort();
+		if (count < 0)
+		{
+			throw new InvalidDataException($"Invalid SFS2X object size: {count}");
+		}
+		
+		var obj = new SFSObject();
+		for (int i = 0; i < count; i++)
+		{
+			var key = reader.ReadUTF();
+			var wrapper = DeserializeValue(reader);
+			obj.Put(key, wrapper);
+		}
+		
+		return obj;
 	}
 
 	private static SFSArray DeserializeNestedArray(SFS2XBinaryReader reader)
 	{
-		// Need to rewind by one byte to read the type header
-		reader.Position--;
-		return DeserializeArray(reader);
+		// For nested arrays, the type byte has already been consumed by DeserializeValue
+		// So we read the count and entries directly
+		var count = reader.ReadShort();
+		if (count < 0)
+		{
+			throw new InvalidDataException($"Invalid SFS2X array size: {count}");
+		}
+		
+		var array = new SFSArray();
+		for (int i = 0; i < count; i++)
+		{
+			var wrapper = DeserializeValue(reader);
+			array.Add(wrapper);
+		}
+		
+		return array;
 	}
 
 	#endregion

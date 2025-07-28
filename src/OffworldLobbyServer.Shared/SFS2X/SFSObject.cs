@@ -280,6 +280,20 @@ public class SFSObject
 	}
 
 	/// <summary>
+	/// Gets the type of value stored for a key without throwing exceptions.
+	/// </summary>
+	/// <param name="key">Key identifier.</param>
+	/// <returns>The type of the value, or null if key not found.</returns>
+	public Type? GetValueType(string key)
+	{
+		if (_data.TryGetValue(key, out var value))
+		{
+			return value?.GetType();
+		}
+		return null;
+	}
+
+	/// <summary>
 	/// Clears all key-value pairs.
 	/// </summary>
 	public void Clear()

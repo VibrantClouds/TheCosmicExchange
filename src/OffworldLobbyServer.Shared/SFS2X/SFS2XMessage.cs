@@ -66,13 +66,20 @@ public class SFS2XMessage
 	/// <exception cref="ArgumentException">Invalid message format.</exception>
 	public static SFS2XMessage FromBytes(byte[] data)
 	{
-		if (data.Length < 6)
+		if (data.Length < 3)
 		{
-			throw new ArgumentException($"Invalid message length: {data.Length} (minimum 6 bytes for header)");
+			throw new ArgumentException($"Invalid message length: {data.Length} (minimum 3 bytes for header)");
 		}
 
 		// Parse header
 		var header = SFS2XMessageHeader.FromBytes(data);
+		
+		// Validate protocol header
+		if (header.ProtocolHeader != 0x80 && header.ProtocolHeader != 0x90)
+		{
+			throw new ArgumentException(
+				$"Invalid protocol header: 0x{header.ProtocolHeader:X2} (expected 0x80 or 0x90)");
+		}
 		
 		// Validate payload length
 		if (data.Length < header.TotalSize)
@@ -85,10 +92,49 @@ public class SFS2XMessage
 		var payloadBytes = new byte[header.Length];
 		Array.Copy(data, header.PayloadOffset, payloadBytes, 0, (int)header.Length);
 		
-		// Deserialize payload
-		var payload = SFS2XSerializer.DeserializeObject(payloadBytes);
-		
-		return new SFS2XMessage(header, payload);
+		// For compact format, we need to detect the message type from payload content
+		if (header.IsCompactFormat)
+		{
+			// The payload is an SFSObject
+			var payload = SFS2XSerializer.DeserializeObject(payloadBytes);
+			
+			// Try to parse as CompactFormatMessage first
+			var compactMsg = Protocol.CompactFormatMessage.FromSFSObject(payload);
+			if (compactMsg != null)
+			{
+				// Use the compact message to determine controller/action
+				var (controller, action) = compactMsg.GetControllerAction();
+				header.Controller = controller;
+				header.Action = action;
+				
+				// For system messages, use the parameters as payload
+				if (controller == 0x00)
+				{
+					return new SFS2XMessage(header, compactMsg.Parameters);
+				}
+				// For extension messages, convert to standard format
+				else if (controller == 0x01)
+				{
+					return new SFS2XMessage(header, compactMsg.ToExtensionFormat());
+				}
+			}
+			
+			// Fallback: Check for direct handshake format (legacy support)
+			if (compactMsg == null && payload.ContainsKey("api") && payload.ContainsKey("cl"))
+			{
+				// Direct handshake message
+				header.Controller = 0x00; // System controller
+				header.Action = 0x00; // Handshake action
+			}
+			
+			return new SFS2XMessage(header, payload);
+		}
+		else
+		{
+			// Standard format - deserialize payload normally
+			var payload = SFS2XSerializer.DeserializeObject(payloadBytes);
+			return new SFS2XMessage(header, payload);
+		}
 	}
 
 	/// <summary>

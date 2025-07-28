@@ -37,12 +37,24 @@ public class SFS2XProtocolProcessor : ISFS2XProtocolProcessor
 	{
 		try
 		{
+			_logger.LogDebug("=== BLUEBOX INCOMING MESSAGE ===");
+			_logger.LogDebug("Session: {SessionId}, Base64 Length: {Length}", sessionId, base64Data.Length);
+			_logger.LogDebug("Base64 Data: {Data}", base64Data);
+			
 			var messageBytes = Convert.FromBase64String(base64Data);
-			_logger.LogDebug("Processing BlueBox SFS2X message: {Length} bytes", messageBytes.Length);
+			_logger.LogDebug("Decoded to {Length} bytes", messageBytes.Length);
 
 			var responseBytes = await ProcessBinaryMessage(sessionId, messageBytes);
 			
-			return responseBytes != null ? Convert.ToBase64String(responseBytes) : null;
+			if (responseBytes != null)
+			{
+				var base64Response = Convert.ToBase64String(responseBytes);
+				_logger.LogDebug("=== BLUEBOX OUTGOING RESPONSE ===");
+				_logger.LogDebug("Response Base64 ({Length} chars): {Data}", base64Response.Length, base64Response);
+				return base64Response;
+			}
+			
+			return null;
 		}
 		catch (FormatException ex)
 		{
@@ -73,8 +85,27 @@ public class SFS2XProtocolProcessor : ISFS2XProtocolProcessor
 			var message = SFS2XMessage.FromBytes(messageData);
 			var header = message.Header;
 			
-			_logger.LogInformation("SFS2X Message - Controller: 0x{Controller:X2}, Action: 0x{Action:X2}, PayloadSize: {PayloadSize}",
-				header.Controller, header.Action, header.Length);
+			_logger.LogInformation("SFS2X Message - Protocol: 0x{Protocol:X2}, Format: {Format}, Controller: 0x{Controller:X2}, Action: 0x{Action:X2}, PayloadSize: {PayloadSize}",
+				header.ProtocolHeader, header.IsCompactFormat ? "Compact" : "Standard", header.Controller, header.Action, header.Length);
+			
+			// Log compact format details if applicable
+			if (header.IsCompactFormat && message.Payload.ContainsKey("c"))
+			{
+				object? cmdValue = null;
+				try 
+				{
+					// Try to get command value as different types
+					cmdValue = message.Payload.GetInt("c");
+				}
+				catch 
+				{
+					try { cmdValue = message.Payload.GetUtfString("c"); }
+					catch { cmdValue = "unknown"; }
+				}
+				
+				_logger.LogDebug("Compact format wrapper - Command: {Command}, Has Parameters: {HasParams}", 
+					cmdValue ?? "null", message.Payload.ContainsKey("p"));
+			}
 
 			// Route message based on controller and action
 			return (header.Controller, header.Action) switch
@@ -112,7 +143,14 @@ public class SFS2XProtocolProcessor : ISFS2XProtocolProcessor
 	public byte[] CreateResponseMessage(byte controller, byte action, SFSObject payload)
 	{
 		var message = new SFS2XMessage(controller, action, payload);
-		return message.ToBytes();
+		var responseBytes = message.ToBytes();
+		
+		// Log outgoing message for debugging
+		_logger.LogInformation("=== SFS2X RESPONSE MESSAGE ===");
+		_logger.LogInformation("Controller: 0x{Controller:X2}, Action: 0x{Action:X2}", controller, action);
+		_logger.LogInformation("Response ({Length} bytes): {Hex}", responseBytes.Length, Convert.ToHexString(responseBytes));
+		
+		return responseBytes;
 	}
 
 	/// <summary>
@@ -336,20 +374,53 @@ public class SFS2XProtocolProcessor : ISFS2XProtocolProcessor
 		_logger.LogInformation("=== SFS2X PROTOCOL ANALYSIS ===");
 		_logger.LogInformation("Raw message ({Length} bytes): {Hex}", messageData.Length, Convert.ToHexString(messageData));
 
-		if (messageData.Length >= 6)
+		if (messageData.Length >= 3)
 		{
 			_logger.LogInformation("Header analysis:");
-			_logger.LogInformation("  Controller: 0x{Controller:X2} ({Controller})", messageData[0], messageData[0]);
-			_logger.LogInformation("  Action: 0x{Action:X2} ({Action})", messageData[1], messageData[1]);
+			_logger.LogInformation("  Protocol Header: 0x{Protocol:X2} ({Type})", 
+				messageData[0], 
+				messageData[0] == 0x80 ? "System" : messageData[0] == 0x90 ? "Extension" : "Unknown");
 			
-			var length = (uint)((messageData[2] << 24) | (messageData[3] << 16) | (messageData[4] << 8) | messageData[5]);
-			_logger.LogInformation("  Payload Length: {Length} bytes", length);
-
-			if (messageData.Length > 6)
+			// Detect format: Standard format has two consecutive 0x00 bytes
+			bool isStandardFormat = messageData.Length >= 3 && messageData[1] == 0x00 && messageData[2] == 0x00;
+			_logger.LogInformation("  Format: {Format}", isStandardFormat ? "Standard (6-byte header)" : "Compact (3-byte header)");
+			
+			if (!isStandardFormat)
 			{
-				var payloadPreview = messageData.Length > 16 ? messageData[6..16] : messageData[6..];
-				_logger.LogInformation("  Payload Preview: {Hex}", Convert.ToHexString(payloadPreview));
+				// Compact format
+				if (messageData.Length >= 3)
+				{
+					var length = (uint)((messageData[1] << 8) | messageData[2]);
+					_logger.LogInformation("  Payload Length: {Length} bytes", length);
+					
+					if (messageData.Length > 3)
+					{
+						var payloadPreview = messageData.Length > 13 ? messageData[3..13] : messageData[3..];
+						_logger.LogInformation("  Payload Preview: {Hex}", Convert.ToHexString(payloadPreview));
+					}
+				}
 			}
+			else
+			{
+				// Standard format
+				if (messageData.Length >= 6)
+				{
+					var length = (uint)messageData[3];
+					_logger.LogInformation("  Payload Length: {Length} bytes", length);
+					_logger.LogInformation("  Controller: 0x{Controller:X2} ({Controller})", messageData[4], messageData[4]);
+					_logger.LogInformation("  Action: 0x{Action:X2} ({Action})", messageData[5], messageData[5]);
+
+					if (messageData.Length > 6)
+					{
+						var payloadPreview = messageData.Length > 16 ? messageData[6..16] : messageData[6..];
+						_logger.LogInformation("  Payload Preview: {Hex}", Convert.ToHexString(payloadPreview));
+					}
+				}
+			}
+		}
+		else
+		{
+			_logger.LogWarning("Message too short for header analysis (need at least 3 bytes)");
 		}
 	}
 
